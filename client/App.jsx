@@ -6,6 +6,7 @@ class App extends Component {
   componentDidMount() {
     // do
   }
+
   render() {
     return [
       <div key="link">
