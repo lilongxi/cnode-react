@@ -1,13 +1,8 @@
 const axios = require('axios')
 const webpack = require('webpack')
 const memoryFs = require('memory-fs')
-const ReactSSR = require('react-dom/server')
 const path = require('path')
 const proxy = require('http-proxy-middleware')
-const asyncBootstrapper = require('react-async-bootstrapper')
-const ejs = require('ejs')
-const serialize = require('serialize-javascript')
-const Helmet = require('react-helmet').default
 
 const serverConfig = require('../../build/webpack.config.server')
 const http = 'http://localhost:8888'
@@ -25,7 +20,7 @@ const getTemplate = () => {
 }
 
 // 根据构造器返回
-const Moudle = module.constructor
+// const Moudle = module.constructor
 // 等同于module.exports, node的原生模块
 const NavtiveMoudle = require('module')
 const vm = require('vm')
@@ -49,7 +44,7 @@ const getModuleFromString = (bundle, filename) => {
 // 实时读取webpack打包结果
 const serverCompiler = webpack(serverConfig)
 const mfs = new memoryFs()
-let serverBundle, createStoreMap, bundleExport
+let bundleExport
 // 指定webpack输出到内存中，不在硬盘中生层dist目录
 serverCompiler.outputFileSystem = mfs
 // watch webpack的每一次编译
@@ -81,9 +76,14 @@ module.exports = function (app) {
 
   // 从缓存中获取模板
   app.get('*', function (req, res, next) {
+    if (!bundleExport) {
+      res.send({
+        code: 0,
+        msg: 'waiting for compiler bundler!'
+      })
+    }
     getTemplate().then(template => {
       return serverRender(bundleExport, template, req, res)
-    })
-    .catch(next)
+    }).catch(next)
   })
 }

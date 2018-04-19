@@ -1,10 +1,11 @@
 const express = require('express')
-const ReactSSR = require('react-dom/server')
+// const ReactSSR = require('react-dom/server')
 const favicon = require('serve-favicon')
 const bodyParser = require('body-parser')
 const session = require('express-session')
 const fs = require('fs')
 const path = require('path')
+const serverRender = require('./util/server-render')
 
 const isDev = process.env.NODE_ENV === 'development'
 
@@ -26,22 +27,28 @@ app.use('/api', require('./util/proxy'))
 
 if (!isDev) {
   // 如果是生产环境，从编译的dist目录下获取模板
-  const serverEntry = require('../dist/server.entry').default
+  const serverEntry = require('../dist/server.entry')
   // 不是开发环境，存在页面
   // 同步获取页面
-  const template = fs.readFileSync(path.join(__dirname, '../dist/index.html'), 'utf-8')
+  const template = fs.readFileSync(path.join(__dirname, '../dist/server.ejs'), 'utf-8')
   // 通过public来判断是否由服务端返回
   app.use('/public', express.static(path.join(__dirname, '../dist')))
-  app.get('*', (req, res) => {
-    const appString = ReactSSR.renderToString(serverEntry)
-    const tmp = template.replace('<!-- app -->', appString)
-    res.send(tmp)
+  app.get('*', (req, res, next) => {
+    serverRender(serverEntry, template, req, res).catch(next)
+    // const appString = ReactSSR.renderToString(serverEntry)
+    // const tmp = template.replace('<!-- app -->', appString)
+    // res.send(tmp)
   })
 } else {
   // 开发环境，从缓存中读取
   const devStatic = require('./util/dev-static')
   devStatic(app)
 }
+
+app.use((error, req, res, next) => {
+  console.log(error)
+  res.status(500).send(error)
+})
 
 app.listen(3333, (error) => {
   if (error) {
