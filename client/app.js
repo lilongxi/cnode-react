@@ -1,3 +1,4 @@
+// 客户端入口文件
 import React from 'react'
 import { AppContainer } from 'react-hot-loader' //eslint-disable-line
 import ReactDom from 'react-dom'
@@ -7,13 +8,14 @@ import { Provider } from 'mobx-react'
 import AppState from './store/app.state'
 
 const root = document.getElementById('root')
-const appState = new AppState()
+// 获取全局初始state，从服务端注入
+const initialState = window.__INITAL_STATE__ || {}
 
 const render = (Component) => {
   const renderMethod = ReactDom.hydrate
   renderMethod(
     <AppContainer>
-      <Provider appState={appState}>
+      <Provider appState={new AppState(initialState)}>
         <BrowserRouter>
           <Component/>
         </BrowserRouter>

@@ -1,8 +1,10 @@
+// server端入口文件
 import React from 'react'
 import { StaticRouter } from 'react-router-dom'
 import { Provider, useStaticRendering } from 'mobx-react'
 import App from './App.jsx'
 
+// 给服务端提供初始的store
 export { createStoreMap } from './store/store'
 
 // mobx在服务端渲染的时候不会重复数据变换,静态渲染
