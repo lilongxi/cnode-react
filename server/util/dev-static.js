@@ -53,22 +53,25 @@ serverCompiler.watch({}, (err, status) => {
   status = status.toJson()
   status.errors.forEach(err => console.error(err))
   status.warnings.forEach(warn => console.warn(warn))
+  // 获取热更新路径
   const bundlePath = path.join(
     serverConfig.output.path,
     serverConfig.output.filename
   )
+  // 读取文件
   const bundle = mfs.readFileSync(bundlePath, 'utf-8')
   const m = getModuleFromString(bundle, 'server-entry.js')
   // const m = new Moudle()
   // m._compile(bundle, 'server-entry.js')
   // 获取serverentery中的渲染服务端模板函数,并导出
   bundleExport = m.exports
-  // serverBundle = m.exports.default
-  // 获取store
-  // createStoreMap = m.exports.createStoreMap
+// serverBundle = m.exports.default
+// 获取store
+// createStoreMap = m.exports.createStoreMap
 })
 
 module.exports = function (app) {
+
   // 现在的请求是3333，把3333下的请求文件代理到8888端口下
   app.use('/public', proxy({
     target: http
@@ -82,6 +85,7 @@ module.exports = function (app) {
         msg: 'waiting for compiler bundler!'
       })
     }
+
     getTemplate().then(template => {
       return serverRender(bundleExport, template, req, res)
     }).catch(next)

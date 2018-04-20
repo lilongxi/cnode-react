@@ -41,8 +41,8 @@ if (!isDev) {
   })
 } else {
   // 开发环境，从缓存中读取
-  const devStatic = require('./util/dev-static')
-  devStatic(app)
+  // require('./util/dev-static')(app)
+  require('./util/dev-server')(app)
 }
 
 app.use((error, req, res, next) => {

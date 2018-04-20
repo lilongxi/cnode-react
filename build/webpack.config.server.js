@@ -6,9 +6,10 @@ const baseConfig = require('./webpack.base.js')
 module.exports = webpackMerge(baseConfig, {
   mode: 'development',
   target: 'node',
-  entry: {
-    app: path.resolve(__dirname, '../client/server.entry.js')
-  },
+  entry: [
+    'webpack-hot-middleware/client/server.entry.js',
+    path.resolve(__dirname, '../client/server.entry.js')
+  ],
   output: {
     filename: 'server.entry.js',
     path: path.resolve(__dirname, '../dist'),
